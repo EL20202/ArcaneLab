@@ -102,10 +102,10 @@ ig.module("game.feature.skills.al-custom-skills").requires(	"game.feature.player
                 if (f)
                     if (f = sc.model.player.getCombatArt(b, f.name)) {
 						var customCheck = isCustomSkill(b, f.key);
+                        f = new sc.StatusViewCombatArtsEntry(e + 1, f);
 						if(customCheck) {
-							f = new sc.StatusViewCombatArtsCustomEntry(e + 1, f, new ig.ImageGui(new ig.Image(customCheck.icon.src), customCheck.icon.offX || 0, customCheck.icon.offY || 0, 24, 24));
-						} else {
-							f = new sc.StatusViewCombatArtsEntry(e + 1, f);
+                            f.icon.setImage(new ig.Image(customCheck.icon.src), customCheck.icon.offX || 0, customCheck.icon.offY || 0, 24, 24)
+                            f.name.setText(f.name.text.replace("\\c[3]", "\\c[2]"))
 						}
                         this.list.addEntry(f);
                         if (e != c - 1) {
@@ -116,88 +116,4 @@ ig.module("game.feature.skills.al-custom-skills").requires(	"game.feature.player
             }
         }
 	});
-	
-	//Idk why I can't inject custom script into sc.StatusViewCombatArtsEntry.init for use, so I just clone that class. Stupid trick but it works perfetly
-    sc.StatusViewCombatArtsCustomEntry =
-        ig.GuiElementBase.extend({
-            icon: null,
-            level: null,
-            sp: null,
-            dmgType: null,
-            stunType: null,
-            condition: null,
-            name: null,
-            description: null,
-            info: null,
-            init: function(a, b, customIcon) {
-                this.parent();
-                this.setSize(512, 41);
-                this.info = b;
-                this.addText("lvl", 9, 2);
-                this.icon = customIcon;
-                this.icon.setPos(3, 12);
-                this.addChildGui(this.icon);
-                this.level = new sc.NumberGui(9, {
-                    size: sc.NUMBER_SIZE.LARGE
-                });
-                this.level.setNumber(a);
-                this.level.setPos(25,
-                    3);
-                this.addChildGui(this.level);
-                this.name = new sc.TextGui("\\c[2]" + b.name + "\\c[0]");
-                this.name.setPos(40, -1);
-                this.addChildGui(this.name);
-                this.description = new sc.TextGui(b.description, {
-                    maxWidth: 460,
-                    font: sc.fontsystem.smallFont,
-                    linePadding: -3
-                });
-                this.description.setPos(40, 17);
-                this.addChildGui(this.description);
-                var c = 168,
-                    c = c + (this.addText("sp", c, 2).x + 3);
-                this.sp = new sc.NumberGui(9);
-                this.sp.setNumber(sc.PLAYER_SP_COST[a - 1]);
-                this.sp.setPos(c, 3);
-                this.addChildGui(this.sp);
-                c = c + 13;
-                c = c + (this.addText("dmgType",
-                    c, 2).x + 3);
-                this.dmgType = new sc.TextGui(this.getDamageType(b.dmgType));
-                this.dmgType.setPos(c, -1);
-                this.addChildGui(this.dmgType);
-                c = c + (this.dmgType.hook.size.x + 5);
-                if (b.stunType || b.status && sc.menu.statusElement != 0) c = c + (this.addText("effects", c, 2).x + 2);
-                if (b.stunType) {
-                    this.stunType = new sc.TextGui(this.getStunType(b.stunType));
-                    this.stunType.setPos(c, -1);
-                    this.addChildGui(this.stunType);
-                    c = c + (this.stunType.hook.size.x + 6)
-                }
-                if (b.status && sc.menu.statusElement != 0) {
-                    this.condition = new sc.TextGui(this.getConditionType(b.status));
-                    this.condition.setPos(c, -1);
-                    this.addChildGui(this.condition)
-                }
-            },
-            addText: function(a, b, c) {
-                a = new sc.TextGui("\\c[4]" + ig.lang.get("sc.gui.menu.status." + a) + "\\c[0]", {
-                    font: sc.fontsystem.tinyFont
-                });
-                a.setPos(b, c);
-                this.addChildGui(a);
-                return a.hook.size
-            },
-            getDamageType: function(a) {
-                return ig.lang.get("sc.gui.menu.status.damageTypes")[a - 1]
-            },
-            getStunType: function(a) {
-                var b = ig.lang.get("sc.gui.menu.status.stunTypes");
-                return "\\i[status-stun-" + a + "]" + b[a - 1]
-            },
-            getConditionType: function() {
-                var a = ig.lang.get("sc.gui.menu.status.conditions");
-                return "\\i[status-cond-" + sc.menu.statusElement + "]" + ig.lang.get("sc.gui.menu.status.inflicts") + " " + a[sc.menu.statusElement]
-            }
-        });
 });
